@@ -37,6 +37,6 @@ jobs:
         uses: svenstaro/upload-release-action@v2
         with:
           file: app/libs/libcore.aar
-          tag: ${{ github.event.inputs.release_tag }}
+          tag: ${{ github.event.inputs.tag }}
           file_glob: true
 
