@@ -43,11 +43,10 @@ jobs:
         run: |
           cd external_libcore
           ./run lib core
-          cp app/libs/libcore.aar $GITHUB_WORKSPACE/app/libs/
 
       - name: Upload AAR to Release
         uses: svenstaro/upload-release-action@v2
         with:
-          file: app/libs/libcore.aar
+          file: external_libcore/app/libs/libcore.aar
           tag: ${{ github.event.inputs.tag }}
           file_glob: true
