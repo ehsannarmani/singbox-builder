@@ -11,12 +11,19 @@ jobs:
     name: Native Build (LibCore)
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout Your Repo
         uses: actions/checkout@v4
+
+      - name: Clone NekoBoxForAndroid Repo
+        run: |
+          git clone --depth=1 https://github.com/MatsuriDayo/NekoBoxForAndroid.git external_libcore
+
       - name: Golang Status
-        run: find buildScript libcore/*.sh | xargs cat | sha1sum > golang_status
+        run: find external_libcore/buildScript external_libcore/libcore/*.sh | xargs cat | sha1sum > golang_status
+
       - name: Libcore Status
-        run: git ls-files libcore | xargs cat | sha1sum > libcore_status
+        run: git -C external_libcore ls-files libcore | xargs -I{} cat external_libcore/{} | sha1sum > libcore_status
+
       - name: LibCore Cache
         id: cache
         uses: actions/cache@v4
@@ -24,15 +31,19 @@ jobs:
           path: |
             app/libs/libcore.aar
           key: ${{ hashFiles('.github/workflows/*', 'golang_status', 'libcore_status') }}
+
       - name: Install Golang
         if: steps.cache.outputs.cache-hit != 'true'
         uses: actions/setup-go@v5
         with:
           go-version: ^1.24
-      - name: Native Build
-        if: steps.cache.outputs.cache-hit != 'true'
-        run: ./run lib core
 
+      - name: Native Build (using external libcore)
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: |
+          cd external_libcore
+          ./run lib core
+          cp app/libs/libcore.aar $GITHUB_WORKSPACE/app/libs/
 
       - name: Upload AAR to Release
         uses: svenstaro/upload-release-action@v2
@@ -40,4 +51,3 @@ jobs:
           file: app/libs/libcore.aar
           tag: ${{ github.event.inputs.tag }}
           file_glob: true
-
