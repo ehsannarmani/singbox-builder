@@ -1,10 +1,8 @@
 name: Release Build
 on:
   workflow_dispatch:
-    inputs:
-      tag:
-        description: "Release Tag"
-        required: true
+  schedule:
+    - cron: 0 0 * * 0
 jobs:
   libcore:
     permissions: write-all
@@ -44,9 +42,13 @@ jobs:
           cd external_libcore
           ./run lib core
 
+      - name: Set Release Tag Date
+        id: date
+        run: echo "date_tag=$(date +'%Y-%m-%d')" >> $GITHUB_OUTPUT
+
       - name: Upload AAR to Release
         uses: svenstaro/upload-release-action@v2
         with:
           file: external_libcore/app/libs/libcore.aar
-          tag: ${{ github.event.inputs.tag }}
+          tag: ${{ steps.date.outputs.date_tag }}
           file_glob: true
