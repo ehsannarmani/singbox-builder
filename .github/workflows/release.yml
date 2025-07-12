@@ -51,4 +51,5 @@ jobs:
         with:
           file: external_libcore/app/libs/libcore.aar
           tag: ${{ steps.date.outputs.date_tag }}
+          name: ${{ steps.date.outputs.date_tag }}
           file_glob: true
